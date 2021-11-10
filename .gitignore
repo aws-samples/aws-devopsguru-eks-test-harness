@@ -1,0 +1,6 @@
+**/.idea
+**/.gradle
+**/devopsguru_eks_test/build
+**/devopsguru_eks_test/gradle
+**/test_client/venv
+**/__pycache__
