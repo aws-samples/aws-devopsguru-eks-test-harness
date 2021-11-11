@@ -46,7 +46,7 @@ public class CpuStressBackgroundComponent {
         });
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 30000)
     public void checkCpuStressRequest() {
         boolean stressTestEnabled;
         try (Jedis client = redisPool.getResource()) {

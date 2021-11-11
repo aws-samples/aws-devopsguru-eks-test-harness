@@ -13,6 +13,11 @@ cd kubernetes_dashboard
 sh install_dashboard.sh
 cd ..
 
+#Install ChaosMesh
+cd chaos_mesh
+sh install_chaos_mesh.sh
+cd ..
+
 #Install prometheus
 cd prometheus
 sh install_prometheus.sh

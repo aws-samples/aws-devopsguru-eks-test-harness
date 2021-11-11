@@ -1,0 +1,36 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  namespace: default
+  name: account-cluster-manager-tynbs
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-cluster-manager-tynbs
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces"]
+  verbs: ["get", "watch", "list"]
+- apiGroups:
+  - chaos-mesh.org
+  resources: [ "*" ]
+  verbs: ["get", "list", "watch", "create", "delete", "patch", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bind-cluster-manager-tynbs
+subjects:
+- kind: ServiceAccount
+  name: account-cluster-manager-tynbs
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: role-cluster-manager-tynbs
+  apiGroup: rbac.authorization.k8s.io

@@ -7,6 +7,11 @@ metadata:
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 60
+      maxUnavailable: 60
   {{- end }}
   selector:
     matchLabels:
@@ -50,7 +55,7 @@ spec:
                 -Xss256k
                 -XX:MaxRAM=384M
             - name: REBOOT_LOOP
-              value: "false"
+              value: "true"
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

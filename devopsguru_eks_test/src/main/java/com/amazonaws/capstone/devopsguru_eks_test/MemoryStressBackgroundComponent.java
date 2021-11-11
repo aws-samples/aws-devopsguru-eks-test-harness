@@ -21,7 +21,7 @@ public class MemoryStressBackgroundComponent {
 
     static final int BUFFER_SIZE = 256 * 1024 * 1024;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 30000)
     public void checkMemoryStressRequest() {
         boolean stressTestEnabled;
         try (Jedis client = redisPool.getResource()) {
