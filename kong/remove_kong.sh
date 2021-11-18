@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+helm uninstall -n kong kong-ingress
