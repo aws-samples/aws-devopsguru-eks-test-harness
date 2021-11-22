@@ -53,7 +53,6 @@ Before running tests, please make sure that your cluster has been running for at
 
 In order to run test cases, make sure you have Python 3.6+ interpreter installed and run:
 ```
-cd test_client
 ./run_test.sh <test_name>
 ```
 
@@ -64,7 +63,8 @@ Currently supported tests scenarios:
 * __restart_instance__ - restarts all the underlying EC2 instances in EKS node group, ending the anomaly caused by __stop_instance__.
 * __enable_cpu_stress_test__ - enables CPU stress test mode, which brings overall cluster CPU utilization to above 90%. After 30 minutes, this produces an anomaly, which does not produce a separate insight, but will be shown as a part of __alb_5xx__, __alb_4xx__ and __stop_instance__ insights. Before enabling this mode, make sure that the cluster has been running for at least 60 minutes to establish baseline for utilization.
 * __disable_cpu_stress_test__ - disables CPU stress test mode mentioned in __enable_cpu_stress_test__
-* __trigger_pod_crash__ - triggers pod crash to demonstrate __pod_number_of_container_restarts__ insights
+* __trigger_pod_crash__ - installs a misconfigured deployment that induces a rolling pod crash to demonstrate __pod_number_of_container_restarts__ insights
+* __disable_pod_crash__ - restores normal deployment configuration after __trigger_pod_crash__
 
 Anomalous metric values can be confirmed via CloudWatch console, and DevOps Guru produced anomalies can be seen in DevOps Guru console.
 
