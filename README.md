@@ -7,6 +7,7 @@ This project allows one to deploy an EKS cluster in their account and trigger va
 In order to operate this test harness you will need the following:
 * A PC with a unix-based opsystem (GNU/Linux or MacOS) and a shell (bash, dash, zsh)
 * OpenJDK 11
+* Gradle 6+ (https://gradle.org/install/)
 * Python 3.6+ with 'pip' utility (https://pip.pypa.io/en/stable/installation/)
 * Docker
 * kubectl utility (https://kubernetes.io/docs/tasks/tools/)
