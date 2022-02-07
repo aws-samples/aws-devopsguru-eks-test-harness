@@ -3,53 +3,55 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-#Bootstrap initial cluster and node group
-cd cluster_bootstrap
-sh create_cluster.sh
-cd ..
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_PAGER=""
 
-#Install kube dashboard
-cd kubernetes_dashboard
-sh install_dashboard.sh
-cd ..
+echo "Bootstrap initial cluster and node group"
+(
+  cd cluster_bootstrap && sh create_cluster.sh || exit 1
+)
 
-#Install ChaosMesh
-cd chaos_mesh
-sh install_chaos_mesh.sh
-cd ..
+echo "Install kube dashboard"
+(
+  cd kubernetes_dashboard && sh install_dashboard.sh || exit 1
+)
 
-#Install prometheus
-cd prometheus
-sh install_prometheus.sh
-cd ..
+echo "Install ChaosMesh"
+(
+  cd chaos_mesh && sh install_chaos_mesh.sh || exit 1
+)
 
-#Install Kong
-cd kong
-sh install_kong.sh
-cd ..
+echo "Install prometheus"
+(
+  cd prometheus && sh install_prometheus.sh || exit 1
+)
 
-#Add ALB controller
-cd aws_load_balancer_controller
-sh create_load_balancer_controller.sh
-cd ..
+echo "Install Kong"
+(
+  cd kong && sh install_kong.sh || exit 1
+)
 
-#Create ECR repo
-cd ecr
-sh create_repo.sh
-cd ..
+echo "Add ALB controller"
+(
+  cd aws_load_balancer_controller && sh create_load_balancer_controller.sh || exit 1
+)
 
-#Install Redis
-cd redis
-sh install_redis.sh
-cd ..
+echo "Create ECR repo"
+(
+  cd ecr && sh create_repo.sh || exit 1
+)
 
-#Build and install test deployment
-cd devopsguru_eks_test
-sh build.sh
-sh install_chart.sh
-cd ..
+echo "Install Redis"
+(
+  cd redis && sh install_redis.sh || exit 1
+)
 
-#Install test client requirements
-cd test_client
-pip install -r requirements.txt
-cd ..
+echo "Build and install test deployment"
+(
+  cd devopsguru_eks_test && sh build.sh && sh install_chart.sh || exit 1
+)
+
+echo "Install test client requirements"
+(
+  cd test_client && pip3 install -r requirements.txt || exit 1
+)

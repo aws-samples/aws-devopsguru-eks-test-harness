@@ -5,46 +5,46 @@ This project allows one to deploy an EKS cluster in their account and trigger va
 ## Requirements
 
 In order to operate this test harness you will need the following:
-* A PC with a unix-based opsystem (GNU/Linux or MacOS) and a shell (bash, dash, zsh)
-* OpenJDK 11
-* Gradle 6+ (https://gradle.org/install/)
-* Python 3.6+ with 'pip' utility (https://pip.pypa.io/en/stable/installation/)
+* A PC with a unix-based opsystem (GNU/Linux or macOS) and a shell (bash, dash, zsh)
+* Onboard used account to AWS DevOps Guru in us-east-1
+* [Gradle](https://gradle.org/install/)
+* [Python 3.6+ with 'pip' utility](https://pip.pypa.io/en/stable/installation/)
 * Docker
-* kubectl utility (https://kubernetes.io/docs/tasks/tools/)
-* eksctl utility (https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
-* aws cli utility (https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
-* helm utility (https://helm.sh/docs/intro/install/)
-* Onboard used account to DevOps Guru in us-east-1
+* [kubectl](https://kubernetes.io/docs/tasks/tools/)
+* [eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
+* [AWS CLI V2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) - only v2 is supported
+* [Helm](https://helm.sh/docs/intro/install/)
 
 ## Installing the harness
 In order to provision the cluster and install all the necessary elements:
 * Authenticate into your AWS account using credentials that have mutating permissions and set default region to us-east-1
- ```
- aws configure
- ```
+```shell
+aws configure
+```
 
 * Run the bootstrap script in the root folder of the repository.
 
-```
+```shell
 ./bootstrap.sh
 ```
 
 ### Inspecting the cluster
 If you would like to inspect the content of deployed EKS cluster, start kubectl proxy via script in the root of repository
-```
+```shell
 ./start_proxy.sh
 ```
+
 This will allow you to view:
-* Kubernetes dashboard (http://localhost:8001/api/v1/namespaces/default/services/https:kubernetes-dashboard:https/proxy/#/workloads?namespace=default)
-* Prometheus server web interface (http://localhost:9090/graph?g0.expr=&g0.tab=1&g0.stacked=0&g0.range_input=1h)
+* [Kubernetes dashboard](http://localhost:8001/api/v1/namespaces/default/services/https:kubernetes-dashboard:https/proxy/#/workloads?namespace=default)
+* [Prometheus server web interface](http://localhost:9090/graph?g0.expr=&g0.tab=1&g0.stacked=0&g0.range_input=1h)
 
 In order to stop proxy process simply run
-```
+```shell
 ./stop_proxy.sh
 ```
 
 In order to get access token for Kubernetes dashboard run
-```
+```shell
 ./get_dashboard_token.sh
 ```
 
@@ -53,7 +53,7 @@ In order to get access token for Kubernetes dashboard run
 Before running tests, please make sure that your cluster has been running for at least 60 minutes, to give DevOps Guru a chance to ingest and index all the metrics.
 
 In order to run test cases, make sure you have Python 3.6+ interpreter installed and run:
-```
+```shell
 ./run_test.sh <test_name>
 ```
 

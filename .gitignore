@@ -4,3 +4,8 @@
 **/devopsguru_eks_test/gradle
 **/test_client/venv
 **/__pycache__
+/gradlew
+/gradlew.bat
+/gradle/wrapper
+/devopsguru_eks_test/gradlew
+/devopsguru_eks_test/gradlew.bat
