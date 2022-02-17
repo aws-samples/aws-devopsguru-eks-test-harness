@@ -17,7 +17,8 @@ public class ContainerRestartComponent {
     @PostConstruct
     public void init() {
 
-        rebootActive = System.getenv("REBOOT_LOOP").equals("true");
+        rebootActive = Optional.ofNullable(System.getenv("REBOOT_LOOP"))
+                .orElse("false").equals("true");
         startTime = System.currentTimeMillis();
         rebootDelay =  Math.abs(new Random().nextInt()) % 300000;
     }
