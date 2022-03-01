@@ -8,6 +8,8 @@ eksctl create cluster \
   --name DevOpsGuruTestCluster \
   --version 1.21 \
   --with-oidc \
+  --managed=false \
+  --node-ami auto \
   --nodegroup-name Group1 \
   --node-type t3.medium \
   --nodes 3 \
