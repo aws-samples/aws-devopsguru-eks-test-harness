@@ -27,6 +27,7 @@ dependencies {
 bootJar {
     from ('./src/main/java') {
         include 'META-INF/LICENSE'
+        include 'META-INF/SPRING_BOOT_LICENSE'
     }
 }
 
