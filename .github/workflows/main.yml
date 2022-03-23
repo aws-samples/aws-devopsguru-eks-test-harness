@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Dockerhub Build CI
 
 # Controls when the workflow will run
@@ -23,9 +21,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      
+      - name: Code Checkout
+        uses: actions/checkout@v2
+      # Builds java-based gradle project      
       - name: Gradle Build
-      - uses: gradle/gradle-build-action@v2.1.4
+        uses: gradle/gradle-build-action@v2.1.4
         with:
           build-root-directory: devopsguru_eks_test
