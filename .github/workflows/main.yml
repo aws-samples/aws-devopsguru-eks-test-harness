@@ -47,5 +47,4 @@ jobs:
         with:
           context: devopsguru_eks_test
           tags: amazon/aws-devopsguru-eks-test-harness-test-service:latest
-          push: true
           push: ${{ github.ref == 'refs/heads/main' }}
