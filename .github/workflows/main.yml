@@ -35,3 +35,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker Image and Push
+        uses: docker/build-push-action@v2.10.0
+        with:
+          build-args: -t amazon/aws-devopsguru-eks-test-harness-test-service
+          file: devopsguru_eks_test/Dockerfile
+          push: true
