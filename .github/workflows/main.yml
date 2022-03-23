@@ -28,6 +28,7 @@ jobs:
         uses: gradle/gradle-build-action@v2.1.4
         with:
           build-root-directory: devopsguru_eks_test
+          gradle-version: 7.3.3
           arguments: build
       - name: Docker Login
         uses: docker/login-action@v1.14.1
