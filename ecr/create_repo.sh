@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: MIT-0
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+REGION=$(aws configure get region)
 
-aws ecr get-login-password --region us-east-1 \
-  | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
-aws ecr create-repository --repository-name devopsguru-eks-test --image-scanning-configuration scanOnPush=true --region us-east-1
+aws ecr get-login-password \
+  | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID".dkr.ecr."${REGION}".amazonaws.com
+
+aws ecr create-repository --repository-name devopsguru-eks-test --image-scanning-configuration scanOnPush=true

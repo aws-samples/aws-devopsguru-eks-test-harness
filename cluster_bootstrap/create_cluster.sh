@@ -6,18 +6,17 @@
 # Create cluster
 eksctl create cluster \
   --name DevOpsGuruTestCluster \
-  --version 1.21 \
+  --version 1.22 \
   --with-oidc \
   --managed=false \
-  --node-ami auto \
   --nodegroup-name Group1 \
   --node-type t3.medium \
   --nodes 3 \
   --nodes-min 1 \
-  --nodes-max 4 \
-  --zones us-east-1a,us-east-1b,us-east-1c
+  --nodes-max 4
 
 # Create admin service account for further use
+eksctl utils associate-iam-oidc-provider --cluster=DevOpsGuruTestCluster --approve
 kubectl apply -f eks-admin-service-account.yaml
 
 # Set up opentelemetry for container insights

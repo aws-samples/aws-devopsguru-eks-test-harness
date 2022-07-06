@@ -6,7 +6,7 @@ This project allows one to deploy an EKS cluster in their account and trigger va
 
 In order to operate this test harness you will need the following:
 * A PC with a unix-based opsystem (GNU/Linux or macOS) and a shell (bash, dash, zsh)
-* Onboard used account to AWS DevOps Guru in us-east-1
+* Onboard used account to AWS DevOps Guru in one of the supported regions.
 * [Gradle](https://gradle.org/install/)
 * [Python 3.6+ with 'pip' utility](https://pip.pypa.io/en/stable/installation/)
 * Docker
@@ -17,7 +17,7 @@ In order to operate this test harness you will need the following:
 
 ## Installing the harness
 In order to provision the cluster and install all the necessary elements:
-* Authenticate into your AWS account using credentials that have mutating permissions and set default region to us-east-1
+* Authenticate into your AWS account using credentials that have mutating permissions.
 ```shell
 aws configure
 ```
