@@ -55,10 +55,10 @@ spec:
                 -Xss256k
                 -XX:MaxRAM=384M
             - name: REBOOT_LOOP
-              value: "true"
+              value: "false"
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /actuator/health/livenesss
               port: http
           readinessProbe:
             httpGet:
