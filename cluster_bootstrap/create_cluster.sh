@@ -3,7 +3,19 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+REGION=$(aws configure get region)
+echo "Creating cluster in region $REGION"
+
+if [ "$REGION" == "us-east-1" ]; then
+  echo "WARNING: If you're getting an exception as you're running in IAD/us-east-1, you need to update the code for creating a cluster."
+  echo "WARNING: Go to the cluster_bootstrap/create_cluster.sh file for details."
+fi
+
 # Create cluster
+# If you're in IAD/us-east-1 and you're getting an exception,
+# append `--region=us-east-1 --zones=us-east-1a,us-east-1b,us-east-1d` to the following command.
+# Details https://eksctl.io/usage/creating-and-managing-clusters/
+
 eksctl create cluster \
   --name DevOpsGuruTestCluster \
   --version 1.22 \
