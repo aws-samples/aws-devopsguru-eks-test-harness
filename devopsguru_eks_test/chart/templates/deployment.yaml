@@ -44,11 +44,11 @@ spec:
               value: >-
                 -XX:ReservedCodeCacheSize=40M
                 -XX:MaxMetaspaceSize=60M
-                -Xlog:gc
                 -Xms128m
                 -Xmx256m
                 -Xss256k
                 -XX:MaxRAM=384M
+                -XX:NativeMemoryTracking=off
             - name: REBOOT_LOOP
               value: "false"
           livenessProbe:
