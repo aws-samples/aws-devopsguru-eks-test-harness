@@ -7,11 +7,6 @@ metadata:
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 60
-      maxUnavailable: 60
   {{- end }}
   selector:
     matchLabels:
@@ -53,17 +48,20 @@ spec:
                 -Xmx256m
                 -Xss256k
                 -XX:MaxRAM=384M
-                -XX:NativeMemoryTracking=off
             - name: REBOOT_LOOP
               value: "false"
           livenessProbe:
             httpGet:
               path: /actuator/health/livenesss
               port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

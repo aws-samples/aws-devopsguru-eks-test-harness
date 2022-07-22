@@ -48,17 +48,20 @@ spec:
                 -Xmx256m
                 -Xss256k
                 -XX:MaxRAM=384M
-                -XX:NativeMemoryTracking=off
             - name: REBOOT_LOOP
               value: "false"
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

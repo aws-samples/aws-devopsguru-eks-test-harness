@@ -5,7 +5,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 20
+replicaCount: 9
 
 image:
   repository: ""
@@ -64,11 +64,11 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-     #cpu: 200m
-     #memory: 150Mi
+     cpu: 600m
+     memory: 600Mi
   requests:
-     #cpu: 100m
-     #memory: 100Mi
+     cpu: 300m
+     memory: 500Mi
 
 autoscaling:
   enabled: false
