@@ -1,4 +1,4 @@
-package com.amazonaws.capstone.devopsguru_eks_test;
+package com.amazonaws.devopsguru.eks.test;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;

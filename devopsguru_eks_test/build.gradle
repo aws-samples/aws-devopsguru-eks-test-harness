@@ -1,10 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
     id 'java'
 }
 
-group 'com.amazonaws.capstone'
+group 'com.amazonaws.devopsguru'
 version '1.0-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'redis.clients:jedis:3.4.0'
+    implementation 'redis.clients:jedis:3.9.0'
     implementation 'org.apache.commons:commons-lang3:3.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
