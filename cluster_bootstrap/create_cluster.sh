@@ -16,13 +16,14 @@ fi
 # append `--region=us-east-1 --zones=us-east-1a,us-east-1b,us-east-1d` to the following command.
 # Details https://eksctl.io/usage/creating-and-managing-clusters/
 
+# Node type is based on the default from https://eksctl.io/
 eksctl create cluster \
   --name DevOpsGuruTestCluster \
   --version 1.22 \
   --with-oidc \
   --managed=false \
   --nodegroup-name Group1 \
-  --node-type t3.medium \
+  --node-type m5.large \
   --nodes 3 \
   --nodes-min 1 \
   --nodes-max 4
