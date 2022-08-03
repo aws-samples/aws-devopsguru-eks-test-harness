@@ -7,4 +7,4 @@ helm repo add chaos-mesh https://charts.chaos-mesh.org
 
 kubectl create namespace chaos-testing
 
-helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-testing --version 2.0.3
+helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-testing
