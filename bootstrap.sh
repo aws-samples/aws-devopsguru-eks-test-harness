@@ -5,6 +5,11 @@
 
 export AWS_PAGER=""
 
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+REGION=$(./get_region.sh)
+
+echo "Bootstrapping DevOps Guru EKS Test Harness in $REGION for $AWS_ACCOUNT_ID"
+
 echo "Bootstrap initial cluster and node group"
 (
   cd cluster_bootstrap && sh create_cluster.sh || exit 1
@@ -54,3 +59,5 @@ echo "Install test client requirements"
 (
   cd test_client && pip3 install -r requirements.txt || exit 1
 )
+
+echo "=== DevOps Guru EKS Test Harness Installation Finished ==="

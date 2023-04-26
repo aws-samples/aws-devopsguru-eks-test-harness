@@ -1,0 +1,8 @@
+{
+  "collector": {
+    "serviceAccount": {
+      "create": false,
+      "name": "aws-otel-collector"
+    }
+  }
+}

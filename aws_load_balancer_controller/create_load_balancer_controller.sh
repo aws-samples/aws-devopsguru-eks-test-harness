@@ -3,6 +3,8 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+# Source: https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html
+
 aws iam create-policy --policy-name DevOpsGuruAWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
@@ -11,7 +13,7 @@ eksctl create iamserviceaccount \
   --cluster=DevOpsGuruTestCluster \
   --namespace=kube-system \
   --name=aws-load-balancer-controller \
-  --attach-policy-arn=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/DevOpsGuruAWSLoadBalancerControllerIAMPolicy \
+  --attach-policy-arn=arn:aws:iam::"$AWS_ACCOUNT_ID":policy/DevOpsGuruAWSLoadBalancerControllerIAMPolicy \
   --override-existing-serviceaccounts \
   --approve
 

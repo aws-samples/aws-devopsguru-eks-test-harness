@@ -1,0 +1,5 @@
+nodeGroups:
+  - name: t3-xlarge
+    iam:
+      attachPolicyARNs:
+        -arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy

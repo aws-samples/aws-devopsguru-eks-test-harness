@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT-0
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-REGION=$(aws configure get region)
+REGION=$(../get_region.sh)
 
 aws ecr get-login-password \
   | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID".dkr.ecr."${REGION}".amazonaws.com
