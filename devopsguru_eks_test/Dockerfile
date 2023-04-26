@@ -1,4 +1,4 @@
-FROM amazoncorretto:11
+FROM amazoncorretto:17
 
 ARG JAR_FILE=build/libs/devopsguru_eks_test-1.0-SNAPSHOT.jar
 COPY ${JAR_FILE} application.jar

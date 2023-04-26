@@ -1,22 +1,8 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-# create namespace
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: aws-otel-eks
-  labels:
-    name: aws-otel-eks
+# Source: https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main/deployment-template/eks/otel-container-insights-infra.yaml
+# See: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md
 
----
-# create cwagent service account and role binding
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: aws-otel-sa
-  namespace: aws-otel-eks
-
----
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -24,10 +10,10 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["pods", "nodes", "endpoints"]
-    verbs: ["list", "watch"]
+    verbs: ["list", "watch", "get"]
   - apiGroups: ["apps"]
     resources: ["replicasets"]
-    verbs: ["list", "watch"]
+    verbs: ["list", "watch", "get"]
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["list", "watch"]
@@ -39,37 +25,90 @@ rules:
     verbs: ["create", "get"]
   - apiGroups: [""]
     resources: ["configmaps"]
+    verbs: ["update"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
     resourceNames: ["otel-container-insight-clusterleader"]
-    verbs: ["get","update"]
+    verbs: ["get","update", "create"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["create","get", "update"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    resourceNames: ["otel-container-insight-clusterleader"]
+    verbs: ["get","update", "create"]
 
 ---
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
 metadata:
-  name: aoc-agent-role-binding
-subjects:
-  - kind: ServiceAccount
-    name: aws-otel-sa
-    namespace: aws-otel-eks
-roleRef:
-  kind: ClusterRole
-  name: aoc-agent-role
-  apiGroup: rbac.authorization.k8s.io
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: otel-agent-conf
-  namespace: aws-otel-eks
-  labels:
-    app: opentelemetry
-    component: otel-agent-conf
-data:
-  otel-agent-config: |
-    extensions:
-      health_check:
-
+  name: cloudwatch-container-insights
+spec:
+  mode: daemonset
+  serviceAccount: aws-otel-collector
+  env:
+    - name: "K8S_NODE_NAME"
+      valueFrom:
+        fieldRef:
+          fieldPath: "spec.nodeName"
+    - name: "K8S_POD_NAME"
+      valueFrom:
+        fieldRef:
+          fieldPath: "metadata.name"
+    - name: "K8S_NAMESPACE"
+      valueFrom:
+        fieldRef:
+          fieldPath: "metadata.namespace"
+    - name: CLUSTER_NAME
+      value: DevOpsGuruTestCluster
+  podAnnotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8888'
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.28.0
+  volumeMounts:
+    - name: rootfs
+      mountPath: /rootfs
+      readOnly: true
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+      readOnly: true
+    - name: containerdsock
+      mountPath: /run/containerd/containerd.sock
+    - name: varlibdocker
+      mountPath: /var/lib/docker
+      readOnly: true
+    - name: sys
+      mountPath: /sys
+      readOnly: true
+    - name: devdisk
+      mountPath: /dev/disk
+      readOnly: true
+  volumes:
+    - configMap:
+        name: otel-agent-conf
+        items:
+          - key: otel-agent-config
+            path: otel-agent-config.yaml
+      name: otel-agent-config-vol
+    - name: rootfs
+      hostPath:
+        path: /
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+    - name: varlibdocker
+      hostPath:
+        path: /var/lib/docker
+    - name: containerdsock
+      hostPath:
+        path: /run/containerd/containerd.sock
+    - name: sys
+      hostPath:
+        path: /sys
+    - name: devdisk
+      hostPath:
+        path: /dev/disk/
+  config: |
     receivers:
       awscontainerinsightreceiver:
 
@@ -155,95 +194,6 @@ data:
           receivers: [awscontainerinsightreceiver]
           processors: [batch/metrics]
           exporters: [awsemf]
-
-      extensions: [health_check]
-
-
----
-# create Daemonset
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: aws-otel-eks-ci
-  namespace: aws-otel-eks
-spec:
-  selector:
-    matchLabels:
-      name: aws-otel-eks-ci
-  template:
-    metadata:
-      labels:
-        name: aws-otel-eks-ci
-    spec:
-      containers:
-        - name: aws-otel-collector
-          image: amazon/aws-otel-collector:v0.11.0
-          env:
-            - name: K8S_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: HOST_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            - name: HOST_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: K8S_NAMESPACE
-              valueFrom:
-                 fieldRef:
-                   fieldPath: metadata.namespace
-          imagePullPolicy: Always
-          command:
-            - "/awscollector"
-            - "--config=/conf/otel-agent-config.yaml"
-          volumeMounts:
-            - name: rootfs
-              mountPath: /rootfs
-              readOnly: true
-            - name: dockersock
-              mountPath: /var/run/docker.sock
-              readOnly: true
-            - name: varlibdocker
-              mountPath: /var/lib/docker
-              readOnly: true
-            - name: sys
-              mountPath: /sys
-              readOnly: true
-            - name: devdisk
-              mountPath: /dev/disk
-              readOnly: true
-            - name: otel-agent-config-vol
-              mountPath: /conf
-          resources:
-            limits:
-              cpu:  200m
-              memory: 200Mi
-            requests:
-              cpu: 200m
-              memory: 200Mi
-      volumes:
-        - configMap:
-            name: otel-agent-conf
-            items:
-              - key: otel-agent-config
-                path: otel-agent-config.yaml
-          name: otel-agent-config-vol
-        - name: rootfs
-          hostPath:
-            path: /
-        - name: dockersock
-          hostPath:
-            path: /var/run/docker.sock
-        - name: varlibdocker
-          hostPath:
-            path: /var/lib/docker
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: devdisk
-          hostPath:
-            path: /dev/disk/
-      serviceAccountName: aws-otel-sa
+      telemetry:
+        logs:
+          level: "debug"
