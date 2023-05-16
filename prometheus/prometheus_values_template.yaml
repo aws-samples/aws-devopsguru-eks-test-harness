@@ -5,10 +5,10 @@ serviceAccounts:
   server:
     name: amp-iamproxy-ingest-service-account
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::713965580784:role/amp-iamproxy-ingest-role
+      eks.amazonaws.com/role-arn: arn:aws:iam::<<AWS_ACCOUNT_ID>>:role/amp-iamproxy-ingest-role
 server:
   remoteWrite:
-    - url: <<PROMETHEUS_ENDPOINT>>
+    - url: <<PROMETHEUS_ENDPOINT>>api/v1/remote_write
       sigv4:
         region: <<REGION>>
       queue_config:
