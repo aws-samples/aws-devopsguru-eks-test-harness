@@ -23,19 +23,24 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Code Checkout
         uses: actions/checkout@v2
-      #Install Docker
+      # Install Docker
       - name: Set up docker build
         uses: docker/setup-buildx-action@v1.6.0
         with:
           install: true
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
       # Builds java-based gradle project      
       - name: Gradle Build
         uses: gradle/gradle-build-action@v2.1.4
         with:
           build-root-directory: devopsguru_eks_test
-          gradle-version: 7.3.3
+          gradle-version: 8.1.1
           arguments: build
-      #Build and push Docker image
+      # Build and push Docker image
       - name: Build Docker Image, but no push
         uses: docker/build-push-action@v2.10.0
         with:
