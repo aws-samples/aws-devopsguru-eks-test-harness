@@ -26,9 +26,16 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.mordant.terminal.ExperimentalTerminalApi
 import com.github.ajalt.mordant.terminal.Terminal
+import java.time.Instant
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
+import kotlin.time.toKotlinDuration
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
 
@@ -47,9 +54,9 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
         option(
                 "--outage-duration",
                 "-d",
-                help = "The duration in seconds for which the private subnet will be inaccessible"
+                help = "The duration for which the private subnet will be inaccessible, e.g. 10m"
             )
-            .convert { it.toInt().seconds }
+            .convert { Duration.parse(it) }
             .default(2.minutes)
 
     @OptIn(ExperimentalTerminalApi::class) private val t = Terminal()
@@ -64,68 +71,86 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
             }
     }
 
-    private suspend fun triggerScenario(eksClient: EksClient, ec2Client: Ec2Client) {
-        val cluster = requireNotNull(eksClient.describeCluster { name = clusterName }.cluster)
+    private suspend fun triggerScenario(eksClient: EksClient, ec2Client: Ec2Client) =
+        coroutineScope {
+            val cluster = requireNotNull(eksClient.describeCluster { name = clusterName }.cluster)
 
-        val vpcId = cluster.resourcesVpcConfig?.vpcId
-        val clusterSubnets = cluster.resourcesVpcConfig?.subnetIds
+            val vpcId = cluster.resourcesVpcConfig?.vpcId
+            val clusterSubnets = cluster.resourcesVpcConfig?.subnetIds
 
-        val privateSubnet =
-            ec2Client
-                .describeSubnets { subnetIds = clusterSubnets }
-                .subnets
-                ?.firstOrNull { isSubnetPrivate(it, ec2Client) }
-        requireNotNull(privateSubnet)
+            val privateSubnet =
+                ec2Client
+                    .describeSubnets { subnetIds = clusterSubnets }
+                    .subnets
+                    ?.firstOrNull { isSubnetPrivate(it, ec2Client) }
+            requireNotNull(privateSubnet)
 
-        val networkAclWithDenyAll =
-            ec2Client.createNetworkAcl {
-                this.vpcId = vpcId
-                tagSpecifications =
-                    listOf(
-                        TagSpecification {
-                            resourceType = ResourceType.NetworkAcl
-                            tags =
-                                listOf(
-                                    Tag {
-                                        key = "Name"
-                                        value = "deny-all-test-nacl"
-                                    }
-                                )
-                        }
-                    )
-            }
+            val networkAclWithDenyAll =
+                ec2Client.createNetworkAcl {
+                    this.vpcId = vpcId
+                    tagSpecifications =
+                        listOf(
+                            TagSpecification {
+                                resourceType = ResourceType.NetworkAcl
+                                tags =
+                                    listOf(
+                                        Tag {
+                                            key = "Name"
+                                            value = "deny-all-test-nacl"
+                                        }
+                                    )
+                            }
+                        )
+                }
+            val networkAclWithDenyAllId =
+                requireNotNull(networkAclWithDenyAll.networkAcl?.networkAclId)
 
-        val originalNetworkAclAssociation =
-            getCurrentNetworkAclAssociationForSubnet(privateSubnet, ec2Client)
-        try {
-            logger.info {
-                "Disabling subnet ${privateSubnet.name()} (${privateSubnet.subnetId}) used by $clusterName " +
-                    "by attaching NACL ${networkAclWithDenyAll.networkAcl?.networkAclId}"
-            }
-            ec2Client.replaceNetworkAclAssociation {
-                associationId = originalNetworkAclAssociation.networkAclAssociationId
-                networkAclId = networkAclWithDenyAll.networkAcl?.networkAclId
-            }
-
-            logger.info {
-                "Now, the nodes on the selected subnet should be in NotReady state for $outageDuration"
-            }
-            delay(outageDuration)
-        } finally {
-            // Switch back to the original Network ACL
-            logger.info { "Scenario cleanup, removing the NACL and enabling the AZ" }
-            val newNetworkAclAssociation =
+            val originalNetworkAclAssociation =
                 getCurrentNetworkAclAssociationForSubnet(privateSubnet, ec2Client)
-            ec2Client.replaceNetworkAclAssociation {
-                associationId = newNetworkAclAssociation.networkAclAssociationId
-                networkAclId = originalNetworkAclAssociation.networkAclId
+
+            val timerJob = launch {
+                val expectedEndAt = Instant.now().plus(outageDuration.toJavaDuration())
+                while (isActive) {
+                    delay(10.seconds)
+                    val remainingTime =
+                        java.time.Duration.between(Instant.now(), expectedEndAt).toKotlinDuration()
+                    logger.info { "Remaining time $remainingTime" }
+                }
             }
 
-            ec2Client.deleteNetworkAcl {
-                networkAclId = networkAclWithDenyAll.networkAcl?.networkAclId
+            try {
+                logger.info(
+                    "Disabling subnet ${privateSubnet.tags?.name()} (${privateSubnet.subnetId}) used by $clusterName " +
+                        "by attaching NACL $networkAclWithDenyAllId. " +
+                        "Original NACL: ${originalNetworkAclAssociation.networkAclId} " +
+                        "(name: ${networkAclName(originalNetworkAclAssociation.networkAclId!!, ec2Client)})"
+                )
+                ec2Client.replaceNetworkAclAssociation {
+                    associationId = originalNetworkAclAssociation.networkAclAssociationId
+                    networkAclId = networkAclWithDenyAllId
+                }
+
+                logger.info {
+                    "Now, the nodes on the selected subnet should be in NotReady state for $outageDuration"
+                }
+                delay(outageDuration)
+            } finally {
+                timerJob.cancel()
+                // Switch back to the original Network ACL
+                logger.info {
+                    "Scenario cleanup, removing the deny-all NACL ($networkAclWithDenyAllId) " +
+                        "and enabling the AZ by switching to NACL ${originalNetworkAclAssociation.networkAclId}"
+                }
+                val newNetworkAclAssociation =
+                    getCurrentNetworkAclAssociationForSubnet(privateSubnet, ec2Client)
+                ec2Client.replaceNetworkAclAssociation {
+                    associationId = newNetworkAclAssociation.networkAclAssociationId
+                    networkAclId = originalNetworkAclAssociation.networkAclId
+                }
+
+                ec2Client.deleteNetworkAcl { networkAclId = networkAclWithDenyAllId }
             }
         }
-    }
 
     private suspend fun getCurrentNetworkAclAssociationForSubnet(
         subnet: Subnet,
@@ -186,7 +211,16 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
         }
     }
 
-    private fun Subnet.name() = tags?.firstOrNull { it.key == "Name" }?.value
+    private fun List<Tag>.name() = firstOrNull { it.key == "Name" }?.value
+
+    private suspend fun networkAclName(networkAclId: String, ec2Client: Ec2Client): String =
+        ec2Client
+            .describeNetworkAcls { this.networkAclIds = listOf(networkAclId) }
+            .networkAcls
+            ?.firstOrNull()
+            ?.tags
+            ?.name()
+            ?: "-"
 
     companion object {
         private val logger = logger()
