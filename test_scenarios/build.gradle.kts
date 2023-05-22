@@ -60,5 +60,7 @@ tasks {
         standardOutput = System.out
     }
 
+    installDist { destinationDir = projectDir.resolve("scripts") }
+
     build { finalizedBy(installDist) }
 }
