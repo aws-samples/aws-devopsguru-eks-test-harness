@@ -42,14 +42,16 @@ configurations {
     }
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion))
+        vendor.set(JvmVendorSpec.AMAZON)
+    }
+}
+
 tasks {
     test { useJUnitPlatform() }
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.majorVersion
-            compilerOptions { freeCompilerArgs.add("-opt-in=org.mylibrary.OptInAnnotation") }
-        }
-    }
+    withType<KotlinCompile> { kotlinOptions { jvmTarget = JavaVersion.VERSION_17.majorVersion } }
 
     register<Exec>("buildAndRun") {
         dependsOn(build)
