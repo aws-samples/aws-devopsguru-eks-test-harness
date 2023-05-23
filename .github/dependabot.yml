@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/test_scenarios"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gradle"
+    directory: "/devopsguru_eks_test"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
