@@ -29,7 +29,7 @@ aws configure
 ```
 
 ### Inspecting the cluster
-If you would like to inspect the content of deployed EKS cluster, start kubectl proxy via script in the root of repository
+If you would like to inspect the content of deployed EKS cluster, start kubectl proxy via the script in the root of the repository
 ```shell
 ./start_proxy.sh
 ```
@@ -38,12 +38,12 @@ This will allow you to view:
 * [Kubernetes dashboard](http://localhost:8001/api/v1/namespaces/default/services/https:kubernetes-dashboard:https/proxy/#/workloads?namespace=default)
 * [Prometheus server web interface](http://localhost:9090/graph?g0.expr=&g0.tab=1&g0.stacked=0&g0.range_input=1h)
 
-In order to stop proxy process simply run
+In order to stop the proxy process, run
 ```shell
 ./stop_proxy.sh
 ```
 
-In order to get access token for Kubernetes dashboard run
+In order to get access token for Kubernetes dashboard, run
 ```shell
 ./get_dashboard_token.sh
 ```

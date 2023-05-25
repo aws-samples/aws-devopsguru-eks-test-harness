@@ -7,4 +7,12 @@ helm repo add chaos-mesh https://charts.chaos-mesh.org
 
 kubectl create namespace chaos-testing
 
-helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-testing --version 2.3.0
+helm install chaos-mesh chaos-mesh/chaos-mesh \
+  --namespace=chaos-testing \
+  --set chaosDaemon.runtime=containerd \
+  --set chaosDaemon.socketPath=/run/containerd/containerd.sock \
+  --version 2.5.2
+
+kubectl apply -f rbac.yaml
+
+kubectl create token account-cluster-manager-tynbs
