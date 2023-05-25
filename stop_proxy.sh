@@ -3,6 +3,6 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-ps axf | grep 'kubectl proxy' | grep -v grep | awk '{print "kill -9 " $1}' | sh
-ps axf | grep 'kubectl --namespace default port-forward' | grep -v grep | awk '{print "kill -9 " $1}' | sh
-ps axf | grep 'kubectl --namespace chaos-testing port-forward' | grep -v grep | awk '{print "kill -9 " $1}' | sh
+pgrep -f 'kubectl proxy' | xargs kill -9
+pgrep -f 'kubectl --namespace prometheus-server port-forward' | xargs kill -9
+pgrep -f 'kubectl --namespace chaos-testing port-forward' | xargs kill -9
