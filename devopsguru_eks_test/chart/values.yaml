@@ -5,7 +5,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 9
+replicaCount: 6
 
 image:
   repository: ""
@@ -60,21 +60,16 @@ ingress:
   #      - chart-example.local
 
 resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-     cpu: 600m
      memory: 600Mi
   requests:
      cpu: 300m
-     memory: 500Mi
+     memory: 600Mi
 
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
+  minReplicas: 3
+  maxReplicas: 12
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
