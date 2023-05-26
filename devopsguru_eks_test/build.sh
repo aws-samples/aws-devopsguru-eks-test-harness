@@ -8,6 +8,11 @@ gradle wrapper
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 REGION=$(../get_region.sh)
 
+# If you are building on macOS and use a newer Docker desktop the build might not work
+# See https://github.com/spring-projects/spring-boot/issues/32897
+# Solution is to create a symlink to the Docker socket in /var/run:
+# sudo ln -s $HOME/.docker/run/docker.sock /var/run/docker.sock
+
 ./gradlew bootBuildImage --imageName=devopsguru/devopsguru-eks-test
 
 aws ecr get-login-password \
