@@ -12,7 +12,7 @@ version = "1.0-SNAPSHOT"
 repositories { mavenCentral() }
 
 dependencies {
-    val awsSdkVersion = "0.25.0-beta"
+    val awsSdkVersion = "0.26.0-beta"
     val coroutinesVersion = "1.7.1"
     val kotlinVersion = "1.8.21"
     val log4j2Version = "2.20.0"
