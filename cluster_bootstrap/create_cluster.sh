@@ -21,7 +21,7 @@ fi
 # Node type is based on the default from https://eksctl.io/
 eksctl create cluster \
   --name $CLUSTER \
-  --version 1.26 \
+  --version 1.27 \
   --with-oidc \
   --managed=true \
   --nodegroup-name t3-xlarge \
