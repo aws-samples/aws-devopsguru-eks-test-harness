@@ -7,6 +7,15 @@ RegionName=$(../get_region.sh)
 FluentBitHttpPort='2020'
 FluentBitReadFromHead='Off'
 
+# Attach CW Policy to service account
+eksctl create iamserviceaccount \
+    --name fluent-bit \
+    --namespace amazon-cloudwatch \
+    --cluster $ClusterName \
+    --attach-policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy \
+    --approve \
+    --override-existing-serviceaccounts
+
 [[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off' || FluentBitReadFromTail='On'
 [[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
 
