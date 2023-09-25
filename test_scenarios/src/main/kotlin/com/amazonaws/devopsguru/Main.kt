@@ -78,12 +78,12 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
             val vpcId = cluster.resourcesVpcConfig?.vpcId
             val clusterSubnets = cluster.resourcesVpcConfig?.subnetIds
 
-            val privateSubnet =
+            val publicSubnet =
                 ec2Client
                     .describeSubnets { subnetIds = clusterSubnets }
                     .subnets
-                    ?.firstOrNull { isSubnetPrivate(it, ec2Client) }
-            requireNotNull(privateSubnet)
+                    ?.firstOrNull { !isSubnetPrivate(it, ec2Client) }
+            requireNotNull(publicSubnet)
 
             val networkAclWithDenyAll =
                 ec2Client.createNetworkAcl {
@@ -106,7 +106,7 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
                 requireNotNull(networkAclWithDenyAll.networkAcl?.networkAclId)
 
             val originalNetworkAclAssociation =
-                getCurrentNetworkAclAssociationForSubnet(privateSubnet, ec2Client)
+                getCurrentNetworkAclAssociationForSubnet(publicSubnet, ec2Client)
 
             val timerJob = launch {
                 val expectedEndAt = Instant.now().plus(outageDuration.toJavaDuration())
@@ -120,7 +120,7 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
 
             try {
                 logger.info(
-                    "Disabling subnet ${privateSubnet.tags?.name()} (${privateSubnet.subnetId}) used by $clusterName " +
+                    "Disabling subnet ${publicSubnet.tags?.name()} (${publicSubnet.subnetId}) used by $clusterName " +
                         "by attaching NACL $networkAclWithDenyAllId. " +
                         "Original NACL: ${originalNetworkAclAssociation.networkAclId} " +
                         "(name: ${networkAclName(originalNetworkAclAssociation.networkAclId!!, ec2Client)})"
@@ -142,7 +142,7 @@ class DisableControlPlaneCommunicationInAz : CliktCommand() {
                         "and enabling the AZ by switching to NACL ${originalNetworkAclAssociation.networkAclId}"
                 }
                 val newNetworkAclAssociation =
-                    getCurrentNetworkAclAssociationForSubnet(privateSubnet, ec2Client)
+                    getCurrentNetworkAclAssociationForSubnet(publicSubnet, ec2Client)
                 ec2Client.replaceNetworkAclAssociation {
                     associationId = newNetworkAclAssociation.networkAclAssociationId
                     networkAclId = originalNetworkAclAssociation.networkAclId
