@@ -38,7 +38,7 @@ jobs:
           java-version: 17
       # Builds java-based gradle project      
       - name: Gradle Build
-        uses: gradle/gradle-build-action@v2.7.1
+        uses: gradle/gradle-build-action@v2.9.0
         with:
           build-root-directory: devopsguru_eks_test
           gradle-version: 8.1.1
