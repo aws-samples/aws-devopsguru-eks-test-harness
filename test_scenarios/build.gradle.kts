@@ -22,7 +22,7 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.0")
     implementation("com.github.ajalt.mordant:mordant:2.1.0")
     implementation("me.tongfei:progressbar:0.10.0")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
     implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Version")
